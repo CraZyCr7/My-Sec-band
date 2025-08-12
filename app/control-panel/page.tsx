@@ -62,6 +62,13 @@ export default function ControlPanelDashboard() {
 
       setLastUpdate(new Date())
       console.log(`📊 [${new Date().toLocaleTimeString()}] Loaded ${alerts.length} critical alerts`)
+      console.log(`📊 Alert details:`, alerts.map(a => ({
+        id: a.id,
+        deviceId: a.deviceId,
+        status: a.status,
+        emailSent: a.emailSent,
+        timestamp: a.timestamp
+      })))
     } catch (error) {
       console.error("❌ Failed to load critical alerts:", error)
     } finally {
@@ -100,20 +107,21 @@ export default function ControlPanelDashboard() {
   // Send email for a specific alert using EmailJS directly
   const sendAlertEmail = useCallback(async (alertData: any) => {
     try {
-              console.log(`📧 Sending email for alert: ${alertData.deviceId} - ${alertData.status}`)
-        
-        // Initialize EmailJS with your public key
-        emailjs.init("B88SJXqcp_WB33ku_")
-        
-        const templateParams = {
-          to_email: "as970789@gmail.com",
-          subject: `🚨 CRITICAL ALERT: ${alertData.status} Detected - Device ${alertData.deviceId}`,
-          device_id: alertData.deviceId,
-          status: alertData.status,
-          location: alertData.location,
-          heartbeat: alertData.heartbeat,
-          coordinates: alertData.coordinates,
-          timestamp: alertData.timestamp,
+      console.log(`📧 Sending email for alert: ${alertData.deviceId} - ${alertData.status}`)
+      console.log(`📧 Alert data:`, alertData)
+      
+      // Initialize EmailJS with your public key
+      emailjs.init("B88SJXqcp_WB33ku_")
+      
+      const templateParams = {
+        to_email: "as970789@gmail.com",
+        subject: `🚨 CRITICAL ALERT: ${alertData.status} Detected - Device ${alertData.deviceId}`,
+        device_id: alertData.deviceId,
+        status: alertData.status,
+        location: alertData.location,
+        heartbeat: alertData.heartbeat || "N/A",
+        coordinates: alertData.coordinates || "N/A",
+        timestamp: alertData.timestamp || new Date().toISOString(),
         html_content: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #dc2626; border-radius: 8px; background-color: #fef2f2;">
             <div style="text-align: center; margin-bottom: 20px;">
@@ -124,39 +132,14 @@ export default function ControlPanelDashboard() {
             <div style="background-color: white; padding: 20px; border-radius: 6px; margin: 20px 0;">
               <h2 style="color: #dc2626; margin-top: 0;">Alert Details</h2>
               
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                  <td style="padding: 10px 0; font-weight: bold; color: #374151;">Device ID:</td>
-                  <td style="padding: 10px 0; color: #1f2937;">${alertData.deviceId}</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                  <td style="padding: 10px 0; font-weight: bold; color: #374151;">Status:</td>
-                  <td style="padding: 10px 0;">
-                    <span style="background-color: #dc2626; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
-                      ${alertData.status}
-                    </span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                  <td style="padding: 10px 0; font-weight: bold; color: #374151;">Location:</td>
-                  <td style="padding: 10px 0; color: #1f2937;">${alertData.location}</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                  <td style="padding: 10px 0; font-weight: bold; color: #374151;">Heartbeat:</td>
-                  <td style="padding: 10px 0;">
-                    <span style="color: #dc2626; font-weight: bold; font-size: 18px;">${alert.heartbeat} BPM</span>
-                    <span style="color: #7f1d1d; margin-left: 10px;">(Critical: >90 BPM)</span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                  <td style="padding: 10px 0; font-weight: bold; color: #374151;">Coordinates:</td>
-                  <td style="padding: 10px 0; color: #1f2937;">${alert.coordinates}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; font-weight: bold; color: #374151;">Timestamp:</td>
-                  <td style="padding: 10px 0; color: #1f2937;">${alert.timestamp}</td>
-                </tr>
-              </table>
+              <div style="margin: 15px 0;">
+                <strong>Device ID:</strong> ${alertData.deviceId}<br>
+                <strong>Status:</strong> <span style="background-color: #dc2626; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${alertData.status}</span><br>
+                <strong>Location:</strong> ${alertData.location}<br>
+                <strong>Heartbeat:</strong> <span style="color: #dc2626; font-weight: bold; font-size: 18px;">${alertData.heartbeat || 'N/A'} BPM</span> (Critical: >90 BPM)<br>
+                <strong>Coordinates:</strong> ${alertData.coordinates || 'N/A'}<br>
+                <strong>Timestamp:</strong> ${alertData.timestamp || new Date().toLocaleString()}
+              </div>
             </div>
             
             <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b;">
@@ -179,22 +162,24 @@ export default function ControlPanelDashboard() {
 CRITICAL SAFETY ALERT - SafeTrack Security Band System
 
 Alert Details:
-- Device ID: ${alert.deviceId}
-- Status: ${alert.status}
-- Location: ${alert.location}
-- Heartbeat: ${alert.heartbeat} BPM (Critical: >90 BPM)
-- Coordinates: ${alert.coordinates}
-- Timestamp: ${alert.timestamp}
+- Device ID: ${alertData.deviceId}
+- Status: ${alertData.status}
+- Location: ${alertData.location}
+- Heartbeat: ${alertData.heartbeat} BPM (Critical: >90 BPM)
+- Coordinates: ${alertData.coordinates}
+- Timestamp: ${alertData.timestamp}
 
 IMMEDIATE ACTION REQUIRED
 This is a critical safety alert requiring immediate attention. Please verify the status of the individual and dispatch emergency services if necessary.
 
 Generated at: ${new Date().toLocaleString()}
         `,
-        alert_type: alert.status === "PANIC" ? "🚨 PANIC ALERT" : "⚠️ FALL ALERT",
-        priority: alert.status === "PANIC" ? "HIGH" : "MEDIUM"
+        alert_type: alertData.status === "PANIC" ? "🚨 PANIC ALERT" : "⚠️ FALL ALERT",
+        priority: alertData.status === "PANIC" ? "HIGH" : "MEDIUM"
       }
 
+      console.log(`📧 Template params:`, templateParams)
+      
       // Send email using EmailJS
       const result = await emailjs.send(
         "service_9pp32yv",           // Service ID
@@ -203,20 +188,22 @@ Generated at: ${new Date().toLocaleString()}
         "B88SJXqcp_WB33ku_"         // Public Key
       )
       
+      console.log(`📧 EmailJS result:`, result)
+      
       if (result.status === 200) {
         // Mark alert as email sent in storage
-        alertStorage.markEmailSent(alert.id)
+        alertStorage.markEmailSent(alertData.id)
         
         // Update local state
         setCriticalAlerts(prev => 
           prev.map(a => 
-            a.id === alert.id 
+            a.id === alertData.id 
               ? { ...a, emailSent: true, emailSentAt: new Date().toISOString() }
               : a
           )
         )
         
-        console.log(`✅ Email sent successfully for device ${alert.deviceId}`)
+        console.log(`✅ Email sent successfully for device ${alertData.deviceId}`)
         
         // Show success message
         alert(`✅ Email sent successfully to as970789@gmail.com`)
@@ -226,6 +213,51 @@ Generated at: ${new Date().toLocaleString()}
     } catch (error) {
       console.error('❌ Failed to send email:', error)
       alert(`❌ Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }, [])
+
+  // Test email function for debugging
+  const testEmail = useCallback(async () => {
+    try {
+      console.log('🧪 Testing email functionality...')
+      
+      // Initialize EmailJS
+      emailjs.init("B88SJXqcp_WB33ku_")
+      
+      const testParams = {
+        to_email: "as970789@gmail.com",
+        subject: "🧪 Test Email - SafeTrack System",
+        device_id: "TEST-DEVICE-001",
+        status: "TEST",
+        location: "Test Location",
+        heartbeat: 95,
+        coordinates: "0,0",
+        timestamp: new Date().toISOString(),
+        html_content: "<h1>Test Email</h1><p>This is a test email from SafeTrack system.</p>",
+        text_content: "Test Email\nThis is a test email from SafeTrack system.",
+        alert_type: "🧪 TEST ALERT",
+        priority: "LOW"
+      }
+      
+      console.log('🧪 Test params:', testParams)
+      
+      const result = await emailjs.send(
+        "service_9pp32yv",
+        "template_iqb5ops",
+        testParams,
+        "B88SJXqcp_WB33ku_"
+      )
+      
+      console.log('🧪 Test result:', result)
+      
+      if (result.status === 200) {
+        alert('✅ Test email sent successfully!')
+      } else {
+        alert(`❌ Test email failed: ${result.status}`)
+      }
+    } catch (error) {
+      console.error('🧪 Test email failed:', error)
+      alert(`❌ Test email failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }, [])
 
@@ -645,6 +677,14 @@ Generated at: ${new Date().toLocaleString()}
                         Send All Pending Emails
                       </Button>
                       
+                      <Button
+                        size="sm"
+                        onClick={testEmail}
+                        variant="outline"
+                        className="text-xs h-8 px-3 border-green-300 text-green-600 hover:bg-green-50"
+                      >
+                        🧪 Test Email
+                      </Button>
 
                     </div>
                     
