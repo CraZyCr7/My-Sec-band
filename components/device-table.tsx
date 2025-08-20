@@ -53,9 +53,18 @@ export default function DeviceTable({ data, className }: DeviceTableProps) {
     return `${prefix}-${id}-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   }
 
-  // Get unique locations for filter
+  // Get unique, non-empty locations for filter
   const uniqueLocations = useMemo(() => {
-    return Array.from(new Set(data.map((device) => device.location))).sort()
+    const nonEmptyLocations = data
+      .map((device) => device.location ?? "")
+      .map((location) => location.trim())
+      .filter((location) => location.length > 0)
+    return Array.from(new Set(nonEmptyLocations)).sort()
+  }, [data])
+
+  // Detect if there are devices with unknown/empty locations
+  const hasUnknownLocations = useMemo(() => {
+    return data.some((device) => !device.location || device.location.trim() === "")
   }, [data])
 
   // Filter and sort data
@@ -78,8 +87,12 @@ export default function DeviceTable({ data, className }: DeviceTableProps) {
         matchesStatus = device.panicstatus || device.fallstatus
       }
 
-      // Location filter
-      const matchesLocation = locationFilter === "all" || device.location === locationFilter
+      // Location filter (treat empty/whitespace as "unknown")
+      const matchesLocation =
+        locationFilter === "all" ||
+        (locationFilter === "unknown"
+          ? !device.location || device.location.trim() === ""
+          : device.location === locationFilter)
 
       return matchesSearch && matchesStatus && matchesLocation
     })
@@ -215,6 +228,7 @@ export default function DeviceTable({ data, className }: DeviceTableProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Locations</SelectItem>
+                {hasUnknownLocations && <SelectItem value="unknown">Unknown</SelectItem>}
                 {uniqueLocations.map((location) => (
                   <SelectItem key={location} value={location}>
                     {location}
