@@ -537,7 +537,7 @@ export default function SafeTrackDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <nav className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
+            <div className="flex flex-wrap items-center justify-between gap-3 py-2">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <Activity className="w-6 h-6 text-white" />
@@ -550,8 +550,8 @@ export default function SafeTrackDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4 w-full sm:w-auto justify-between sm:justify-end flex-wrap gap-2">
+                <div className="flex items-center space-x-3 flex-wrap gap-2">
                   <div className="flex items-center space-x-2 text-sm">
                     <div
                       className={`w-2 h-2 rounded-full ${
@@ -579,7 +579,7 @@ export default function SafeTrackDashboard() {
                   )}
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-wrap gap-2">
                   {/* Data freshness indicator */}
                   <div className="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-400">
                     <div className={`w-2 h-2 rounded-full ${lastUpdate ? 'bg-green-500' : 'bg-gray-400'}`}></div>

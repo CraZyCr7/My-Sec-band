@@ -216,7 +216,7 @@ export default function DeviceMap({ data, className }: DeviceMapProps) {
           <div className="relative flex-1">
             <div 
               ref={mapRef} 
-              className="min-h-[400px] h-[50vh] sm:h-[55vh] lg:h-[65vh] xl:h-[70vh] w-full rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 transition-all duration-300 hover:shadow-lg flex-1" 
+              className="min-h-[320px] h-[45vh] sm:min-h-[380px] sm:h-[50vh] lg:h-[65vh] xl:h-[70vh] w-full rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 transition-all duration-300 hover:shadow-lg flex-1" 
               style={{ minHeight: '400px', maxHeight: '80vh' }}
             />
 
